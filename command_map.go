@@ -18,83 +18,81 @@ type Location_response struct {
 	Results  []Pokemap `json:"results"`
 }
 
-func commandMap(c *config) func() error {
-	cfg := c
-	return func() error {
-		if cfg.Next == "" && cfg.Previous != "" {
-			return fmt.Errorf("There are no more locations")
-		}
+func commandMap(cfg *config) error {
 
-		if cfg.Next == "" && cfg.Previous == "" {
-			cfg.Next = "https://pokeapi.co/api/v2/location-area"
-		}
-
-		resp, err := http.Get(c.Next)
-
-		if err != nil {
-			return fmt.Errorf("Failed to get the cities: %w", err)
-		}
-
-		if resp.StatusCode > 299 {
-			return fmt.Errorf("Failed to get the cities: %v", resp.Status)
-		}
-
-		defer resp.Body.Close()
-		decoder := json.NewDecoder(resp.Body)
-		var lr Location_response
-		err = decoder.Decode(&lr)
-
-		if err != nil {
-			return fmt.Errorf("Failed to parse json: %w", err)
-		}
-
-		cfg.Next = lr.Next
-		cfg.Previous = lr.Previous
-
-		for _, location := range lr.Results {
-			fmt.Printf("jeh")
-			str := fmt.Sprintf("%s", location.Name)
-			fmt.Println(str)
-		}
-
-		return nil
+	if cfg.Next == "" && cfg.Previous != "" {
+		return fmt.Errorf("There are no more locations")
 	}
+
+	if cfg.Next == "" && cfg.Previous == "" {
+		cfg.Next = "https://pokeapi.co/api/v2/location-area"
+	}
+
+	resp, err := http.Get(cfg.Next)
+
+	if err != nil {
+		return fmt.Errorf("Failed to get the cities: %w", err)
+	}
+
+	if resp.StatusCode > 299 {
+		return fmt.Errorf("Failed to get the cities: %v", resp.Status)
+	}
+
+	defer resp.Body.Close()
+	decoder := json.NewDecoder(resp.Body)
+	var lr Location_response
+	err = decoder.Decode(&lr)
+
+	if err != nil {
+		return fmt.Errorf("Failed to parse json: %w", err)
+	}
+
+	cfg.Next = lr.Next
+	cfg.Previous = lr.Previous
+
+	for _, location := range lr.Results {
+		fmt.Printf("jeh")
+		str := fmt.Sprintf("%s", location.Name)
+		fmt.Println(str)
+	}
+
+	return nil
+
 }
 
-func commandMapBack(c *config) func() error {
-	cfg := c
-	return func() error {
-		if cfg.Next == "" && cfg.Previous == "" || cfg.Previous == "" {
-			return fmt.Errorf("There are no locations yet")
-		}
+func commandMapBack(cfg *config) error {
 
-		resp, err := http.Get(c.Previous)
-
-		if err != nil {
-			return fmt.Errorf("Failed to get the cities: %w", err)
-		}
-
-		if resp.StatusCode > 299 {
-			return fmt.Errorf("Failed to get the cities: %v", resp.Status)
-		}
-
-		defer resp.Body.Close()
-		decoder := json.NewDecoder(resp.Body)
-		var lr Location_response
-		err = decoder.Decode(&lr)
-
-		if err != nil {
-			return fmt.Errorf("Failed to parse json: %w", err)
-		}
-
-		cfg.Next = lr.Next
-		cfg.Previous = lr.Previous
-		for _, location := range lr.Results {
-			fmt.Printf("jeh")
-			str := fmt.Sprintf("%s", location.Name)
-			fmt.Println(str)
-		}
-
-		return nil
+	if cfg.Next == "" && cfg.Previous == "" || cfg.Previous == "" {
+		return fmt.Errorf("There are no locations yet")
 	}
+
+	resp, err := http.Get(cfg.Previous)
+
+	if err != nil {
+		return fmt.Errorf("Failed to get the cities: %w", err)
+	}
+
+	if resp.StatusCode > 299 {
+		return fmt.Errorf("Failed to get the cities: %v", resp.Status)
+	}
+
+	defer resp.Body.Close()
+	decoder := json.NewDecoder(resp.Body)
+	var lr Location_response
+	err = decoder.Decode(&lr)
+
+	if err != nil {
+		return fmt.Errorf("Failed to parse json: %w", err)
+	}
+
+	cfg.Next = lr.Next
+	cfg.Previous = lr.Previous
+	for _, location := range lr.Results {
+		fmt.Printf("jeh")
+		str := fmt.Sprintf("%s", location.Name)
+		fmt.Println(str)
+	}
+
+	return nil
+
 }
