@@ -8,7 +8,7 @@ func cleanInput(text string) []string {
 	var in []string
 	for _, part := range parts {
 		if part != " " && part != "" {
-			in = append(in, part)
+			in = append(in, strings.ToLower(part))
 		}
 	}
 	return in
