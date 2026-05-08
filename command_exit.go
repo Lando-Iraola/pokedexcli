@@ -5,8 +5,15 @@ import (
 	"os"
 )
 
-func commandExit() error {
-	fmt.Println("Closing the Pokedex... Goodbye!")
-	os.Exit(0)
-	return nil
+func commandExit(c *config) func() error {
+	cfg := c
+	return func() error {
+		if cfg == (&config{}) {
+			fmt.Println("yeah...")
+		}
+
+		fmt.Println("Closing the Pokedex... Goodbye!")
+		os.Exit(0)
+		return nil
+	}
 }
