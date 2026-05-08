@@ -7,6 +7,19 @@ import (
 )
 
 func main() {
+	SUPPORTED_COMMANDS = map[string]cliCommand{
+		"exit": {
+			name:        "exit",
+			description: "Exit the Pokedex",
+			callback:    commandExit,
+		},
+		"help": {
+			name:        "help",
+			description: "Displays a help message",
+			callback:    commandHelp,
+		},
+	}
+
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
@@ -14,7 +27,11 @@ func main() {
 		if scanner.Scan() {
 			txt := scanner.Text()
 			txts := cleanInput(txt)
-			fmt.Println(fmt.Sprintf("Your command was: %s", txts[0]))
+
+			if command, ok := SUPPORTED_COMMANDS[txts[0]]; ok {
+				command.callback()
+			}
+
 		}
 	}
 }
