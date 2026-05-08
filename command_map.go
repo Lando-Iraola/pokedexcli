@@ -1,56 +1,21 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"net/http"
 )
 
-type Pokemap struct {
-	Name string `json:"name"`
-	URL  string `json:"url"`
-}
+func commandMapF(cfg *config) error {
 
-type Location_response struct {
-	Count    int       `json:"count"`
-	Next     string    `json:"next"`
-	Previous string    `json:"previous"`
-	Results  []Pokemap `json:"results"`
-}
-
-func commandMap(cfg *config) error {
-
-	if cfg.Next == "" && cfg.Previous != "" {
-		return fmt.Errorf("There are no more locations")
-	}
-
-	if cfg.Next == "" && cfg.Previous == "" {
-		cfg.Next = "https://pokeapi.co/api/v2/location-area"
-	}
-
-	resp, err := http.Get(cfg.Next)
+	locationResp, err := cfg.pokeapiClient.ListLocations(cfg.Next)
 
 	if err != nil {
-		return fmt.Errorf("Failed to get the cities: %w", err)
+		return err
 	}
 
-	if resp.StatusCode > 299 {
-		return fmt.Errorf("Failed to get the cities: %v", resp.Status)
-	}
+	cfg.Next = locationResp.Next
+	cfg.Previous = locationResp.Previous
 
-	defer resp.Body.Close()
-	decoder := json.NewDecoder(resp.Body)
-	var lr Location_response
-	err = decoder.Decode(&lr)
-
-	if err != nil {
-		return fmt.Errorf("Failed to parse json: %w", err)
-	}
-
-	cfg.Next = lr.Next
-	cfg.Previous = lr.Previous
-
-	for _, location := range lr.Results {
+	for _, location := range locationResp.Results {
 		fmt.Printf("jeh")
 		str := fmt.Sprintf("%s", location.Name)
 		fmt.Println(str)
@@ -60,34 +25,18 @@ func commandMap(cfg *config) error {
 
 }
 
-func commandMapBack(cfg *config) error {
+func commandMapb(cfg *config) error {
 
-	if cfg.Next == "" && cfg.Previous == "" || cfg.Previous == "" {
-		return fmt.Errorf("There are no locations yet")
-	}
-
-	resp, err := http.Get(cfg.Previous)
+	locationResp, err := cfg.pokeapiClient.ListLocations(cfg.Previous)
 
 	if err != nil {
-		return fmt.Errorf("Failed to get the cities: %w", err)
+		return err
 	}
 
-	if resp.StatusCode > 299 {
-		return fmt.Errorf("Failed to get the cities: %v", resp.Status)
-	}
+	cfg.Next = locationResp.Next
+	cfg.Previous = locationResp.Previous
 
-	defer resp.Body.Close()
-	decoder := json.NewDecoder(resp.Body)
-	var lr Location_response
-	err = decoder.Decode(&lr)
-
-	if err != nil {
-		return fmt.Errorf("Failed to parse json: %w", err)
-	}
-
-	cfg.Next = lr.Next
-	cfg.Previous = lr.Previous
-	for _, location := range lr.Results {
+	for _, location := range locationResp.Results {
 		fmt.Printf("jeh")
 		str := fmt.Sprintf("%s", location.Name)
 		fmt.Println(str)
