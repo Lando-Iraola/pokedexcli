@@ -2,19 +2,20 @@ package pokeapi
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 )
 
 // ListLocations -
-func (c *Client) LocationDetail(mapName *string) (RespLocationDetail, error) {
-	url := baseURL + "/location-area/" + *mapName
+func (c *Client) Pokemon(pokemonName *string) (RespPokemon, error) {
+	url := baseURL + "/pokemon/" + *pokemonName
 
 	if cacheEntry, ok := c.cache.Get(url); ok {
-		locationsResp := RespLocationDetail{}
+		locationsResp := RespPokemon{}
 		err := json.Unmarshal(cacheEntry, &locationsResp)
 		if err != nil {
-			return RespLocationDetail{}, err
+			return RespPokemon{}, err
 		}
 
 		return locationsResp, nil
@@ -22,24 +23,28 @@ func (c *Client) LocationDetail(mapName *string) (RespLocationDetail, error) {
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return RespLocationDetail{}, err
+		return RespPokemon{}, err
 	}
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return RespLocationDetail{}, err
+		return RespPokemon{}, err
 	}
 	defer resp.Body.Close()
 
-	dat, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return RespLocationDetail{}, err
+	if resp.StatusCode > 299 {
+		return RespPokemon{}, fmt.Errorf("Couldn't find the pokemon: %s Server says: %v", *pokemonName, resp.Status)
 	}
 
-	locationsResp := RespLocationDetail{}
+	dat, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return RespPokemon{}, err
+	}
+
+	locationsResp := RespPokemon{}
 	err = json.Unmarshal(dat, &locationsResp)
 	if err != nil {
-		return RespLocationDetail{}, err
+		return RespPokemon{}, err
 	}
 
 	c.cache.Add(url, dat)
