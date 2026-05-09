@@ -21,8 +21,10 @@ func startRepl(conf *config) {
 				continue
 			}
 
+			params := txts[1:]
+
 			if command, ok := getCommands()[txts[0]]; ok {
-				err := command.callback(conf)
+				err := command.callback(conf, params...)
 				if err != nil {
 					fmt.Println(err)
 				}
@@ -44,7 +46,7 @@ type config struct {
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(c *config) error
+	callback    func(c *config, params ...string) error
 }
 
 func cleanInput(text string) []string {
@@ -80,6 +82,11 @@ func getCommands() map[string]cliCommand {
 			name:        "mapb",
 			description: "Displays previous pokemon locations",
 			callback:    commandMapb,
+		},
+		"explore": {
+			name:        "explore",
+			description: "Display all pokemon available in a given area. Takes in the map name",
+			callback:    commandExplore,
 		},
 	}
 }

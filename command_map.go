@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func commandMapF(cfg *config) error {
+func commandMapF(cfg *config, params ...string) error {
 
 	locationResp, err := cfg.pokeapiClient.ListLocations(cfg.Next)
 
@@ -16,7 +16,6 @@ func commandMapF(cfg *config) error {
 	cfg.Previous = locationResp.Previous
 
 	for _, location := range locationResp.Results {
-		fmt.Printf("jeh")
 		str := fmt.Sprintf("%s", location.Name)
 		fmt.Println(str)
 	}
@@ -25,7 +24,7 @@ func commandMapF(cfg *config) error {
 
 }
 
-func commandMapb(cfg *config) error {
+func commandMapb(cfg *config, params ...string) error {
 
 	locationResp, err := cfg.pokeapiClient.ListLocations(cfg.Previous)
 
@@ -37,7 +36,6 @@ func commandMapb(cfg *config) error {
 	cfg.Previous = locationResp.Previous
 
 	for _, location := range locationResp.Results {
-		fmt.Printf("jeh")
 		str := fmt.Sprintf("%s", location.Name)
 		fmt.Println(str)
 	}
